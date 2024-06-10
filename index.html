@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>지도 생성하기</title>
+    <script
+      type="text/javascript"
+      src="//dapi.kakao.com/v2/maps/sdk.js?appkey=3d53137948c75193e38ee37fc906d145"
+    ></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  </head>
+  <body>
+    <!-- 지도를 만들 DIV 생성-->
+    <div id="map" style="width: 100%; height: 350px"></div>
+    <br />
+
+    <!-- 각각 기능들의 버튼 생성-->
+    <button id="btn1">지도 만들기</button>
+    <button id="btn2">현재 위치로 지도 만들기</button>
+    <button id="btn3">우리집 근처 맛집 리스트 제작하기</button>
+    <script>
+      // 1. 지도 생성하는 함수
+      const makeMap = (lat, lan) => {
+        var mapContainer = document.getElementById("map"), // 지도를 표시할 div
+          mapOption = {
+            center: new kakao.maps.LatLng(lat, lan), // 지도의 중심좌표
+            level: 3, // 지도의 확대 레벨
+          };
+
+        // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
+        var map = new kakao.maps.Map(mapContainer, mapOption);
+
+        // 지도 도움되는 커스텀 기능들
+        // 1. 지도위에 실시간 교통량 표시하기
+        map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
+        // 2. 지도위에 컨트롤러 추가하기
+        // 일반 지도와 스카이뷰로 지도 타입을 전환할 수 있는 지도타입 컨트롤을 생성합니다
+        var mapTypeControl = new kakao.maps.MapTypeControl();
+
+        // 지도에 컨트롤을 추가해야 지도위에 표시됩니다
+        // kakao.maps.ControlPosition은 컨트롤이 표시될 위치를 정의하는데 TOPRIGHT는 오른쪽 위를 의미합니다
+        map.addControl(mapTypeControl, kakao.maps.ControlPosition.TOPRIGHT);
+
+        // 지도 확대 축소를 제어할 수 있는  줌 컨트롤을 생성합니다
+        var zoomControl = new kakao.maps.ZoomControl();
+        map.addControl(zoomControl, kakao.maps.ControlPosition.RIGHT);
+      };
+
+      // 2. 현재위치 받아오는 geolocation api
+      const getLocation = () => {
+        navigator.geolocation.getCurrentPosition((position) => {
+          console.log("위도", position.coords.latitude);
+          console.log("경도", position.coords.longitude);
+          let lat = position.coords.latitude;
+          let lan = position.coords.longitude;
+          makeMap(lat, lan);
+        });
+      };
+
+      // 3. 맛집 마커 찍어보기
+      const makeTatseMap = () => {
+        var mapContainer = document.getElementById("map"), // 지도를 표시할 div
+          mapOption = {
+            center: new kakao.maps.LatLng(35.146492, 126.922234), // 지도의 중심좌표
+            level: 3, // 지도의 확대 레벨
+          };
+
+        var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+        // 마커를 표시할 위치와 title 객체 배열입니다
+        var positions = [
+          {
+            title: "두껍베이커리",
+            latlng: new kakao.maps.LatLng(35.146337, 126.922178),
+          },
+          {
+            title: "동부식당",
+            latlng: new kakao.maps.LatLng(35.146155, 126.922194),
+          },
+          {
+            title: "산수옥 모밀",
+            latlng: new kakao.maps.LatLng(35.146019, 126.922203),
+          },
+        ];
+
+        // 마커 이미지의 이미지 주소입니다
+        var imageSrc =
+          "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
+
+        for (var i = 0; i < positions.length; i++) {
+          // 마커 이미지의 이미지 크기 입니다
+          var imageSize = new kakao.maps.Size(24, 35);
+
+          // 마커 이미지를 생성합니다
+          var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
+
+          // 마커를 생성합니다
+          var marker = new kakao.maps.Marker({
+            map: map, // 마커를 표시할 지도
+            position: positions[i].latlng, // 마커를 표시할 위치
+            title: positions[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+            image: markerImage, // 마커 이미지
+          });
+        }
+      };
+
+      $("#btn1").on("click", () => {
+        makeMap();
+      });
+
+      $("#btn2").on("click", () => {
+        getLocation();
+      });
+
+      $("#btn3").on("click", () => {
+        makeTatseMap();
+      });
+    </script>
+  </body>
+</html>
